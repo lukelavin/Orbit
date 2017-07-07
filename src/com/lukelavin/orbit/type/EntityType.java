@@ -5,5 +5,5 @@ package com.lukelavin.orbit.type;
  */
 public enum EntityType
 {
-    PLAYER, ORBITAL, BULLET, ENEMY
+    PLAYER, ORBITAL, PROJECTILE, ENEMY, PICKUP, UTIL, CHASER
 }

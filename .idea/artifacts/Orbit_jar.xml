@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Orbit:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Orbit_jar</output-path>
+    <root id="archive" name="Orbit.jar">
+      <element id="module-output" name="Orbit" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/fxgl-0.2.9-uber.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

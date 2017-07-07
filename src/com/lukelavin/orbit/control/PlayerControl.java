@@ -5,37 +5,45 @@ import com.almasb.ents.Entity;
 import com.almasb.fxgl.app.FXGL;
 import com.almasb.fxgl.entity.GameEntity;
 import com.lukelavin.orbit.EntityFactory;
+import com.lukelavin.orbit.component.ConfuseComponent;
 import com.lukelavin.orbit.component.DamageComponent;
+import com.lukelavin.orbit.component.HPComponent;
 import com.lukelavin.orbit.component.RangeComponent;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
-
+import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lukelavin.orbit.Config.TILE_SIZE;
+import static com.lukelavin.orbit.Config.*;
 
-/**
- * Created by lukel on 3/5/2017.
- */
 public class PlayerControl extends AbstractControl
 {
-    double angle;
-    GameEntity gameEntity;
-    Point2D direction;
-    List<GameEntity> orbitals;
+    private GameEntity gameEntity;
+
+    private double speed;
+    private Point2D direction;
+    private double orbitalSpeed;
+
+    private double angle;
+    private List<GameEntity> orbitals;
+
     private double range(){
         return gameEntity.getComponentUnsafe(RangeComponent.class).getValue();
     }
     private double damage(){
         return gameEntity.getComponentUnsafe(DamageComponent.class).getValue();
     }
+    private HPComponent HP(){ return gameEntity.getComponentUnsafe(HPComponent.class);}
 
     @Override
     public void onAdded(Entity entity)
     {
         gameEntity = (GameEntity) entity;
         direction = new Point2D(0, 0);
+        speed = DEFAULT_SPEED;
+        orbitalSpeed = DEFAULT_SPEED;
 
         angle = 0;
         orbitals = new ArrayList<GameEntity>();
@@ -44,7 +52,7 @@ public class PlayerControl extends AbstractControl
         addOrbital();
     }
 
-    Color[] orbitalColors = {Color.ORANGE, Color.LIMEGREEN, Color.LIGHTSEAGREEN, Color.YELLOW, Color.PURPLE, Color.INDIANRED, Color.GREEN, Color.DARKKHAKI, Color.VIOLET, Color.SKYBLUE};
+    Color[] orbitalColors = {Color.ORANGE, Color.LIMEGREEN, Color.LIGHTSEAGREEN, Color.YELLOW, Color.PURPLE, Color.INDIANRED, Color.FORESTGREEN, Color.DARKKHAKI, Color.VIOLET, Color.SKYBLUE};
     public void addOrbital(){
         GameEntity orbital = EntityFactory.newOrbital(gameEntity.getX() + 10 + TILE_SIZE * Math.cos(0), gameEntity.getY() + 10 + TILE_SIZE * Math.sin(0), //x and y
                                                         orbitalColors[orbitals.size() % orbitalColors.length], damage()); //color and size
@@ -61,9 +69,20 @@ public class PlayerControl extends AbstractControl
     @Override
     public void onUpdate(Entity entity, double v)
     {
-        angle+= 1.5;
+        angle += 1.5 + (orbitalSpeed - Math.signum(orbitalSpeed) *5) / 3;
         updateOrbitals();
         move();
+
+        ConfuseComponent confuseComponent = gameEntity.getComponentUnsafe(ConfuseComponent.class);
+        if(confuseComponent != null)
+        {
+            if(confuseComponent.getConfuseTimer().elapsed(Duration.millis(1000)))
+                gameEntity.removeComponent(ConfuseComponent.class);
+
+            Label notifier = confuseComponent.getNotifier();
+            notifier.setTranslateX(gameEntity.getX() - 10);
+            notifier.setTranslateY(gameEntity.getY() - 20);
+        }
     }
 
     public void updateOrbitals()
@@ -82,19 +101,23 @@ public class PlayerControl extends AbstractControl
 
     public void up()
     {
-        direction = new Point2D(direction.getX(), -5);
+        if(gameEntity.getY() > speed)
+            direction = new Point2D(direction.getX(), -speed);
     }
     public void down()
     {
-        direction = new Point2D(direction.getX(), 5);
+        if(gameEntity.getY() < FXGL.getApp().getHeight() - speed - TILE_SIZE * 2 - 50)
+            direction = new Point2D(direction.getX(), speed);
     }
     public void left()
     {
-        direction = new Point2D(-5, direction.getY());
+        if(gameEntity.getX() > speed)
+            direction = new Point2D(-speed, direction.getY());
     }
     public void right()
     {
-        direction = new Point2D(5, direction.getY());
+        if(gameEntity.getX() < FXGL.getApp().getWidth() - speed - TILE_SIZE * 2)
+            direction = new Point2D(speed, direction.getY());
     }
 
     private void move(){
@@ -108,6 +131,14 @@ public class PlayerControl extends AbstractControl
         gameEntity.getPositionComponent().translate(direction);
 
         direction = new Point2D(0,0);
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public void setRange(double range)
@@ -142,5 +173,22 @@ public class PlayerControl extends AbstractControl
         }
         for(int i = 0; i < count; i++)
             addOrbital();
+    }
+
+    public double getHP(){
+        return HP().getValue();
+    }
+    public void setHP(double newHP){
+        HP().setValue(newHP);
+    }
+
+    public double getOrbitalSpeed()
+    {
+        return orbitalSpeed;
+    }
+
+    public void setOrbitalSpeed(double orbitalSpeed)
+    {
+        this.orbitalSpeed = orbitalSpeed;
     }
 }

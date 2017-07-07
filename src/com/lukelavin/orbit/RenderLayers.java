@@ -2,9 +2,6 @@ package com.lukelavin.orbit;
 
 import com.almasb.fxgl.entity.RenderLayer;
 
-/**
- * Created by lukel on 3/6/2017.
- */
 public class RenderLayers
 {
     public static RenderLayer background = new RenderLayer()

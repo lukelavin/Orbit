@@ -1,14 +1,13 @@
 package com.lukelavin.orbit.collision;
 
+import com.almasb.ents.Control;
 import com.almasb.ents.Entity;
 import com.almasb.fxgl.entity.GameEntity;
 import com.almasb.fxgl.physics.CollisionHandler;
-import com.lukelavin.orbit.control.EnemyControl;
+import com.lukelavin.orbit.control.enemy.AbstractEnemyControl;
+import com.lukelavin.orbit.control.enemy.Enemy1Control;
 import com.lukelavin.orbit.type.EntityType;
 
-/**
- * Created by lukel on 3/6/2017.
- */
 public class OrbitalEnemyHandler extends CollisionHandler
 {
     public OrbitalEnemyHandler(EntityType orbital, EntityType enemy)
@@ -21,7 +20,12 @@ public class OrbitalEnemyHandler extends CollisionHandler
     {
         GameEntity orbital = (GameEntity) o;
         GameEntity enemy = (GameEntity) e;
-        EnemyControl enemyControl = enemy.getControlUnsafe(EnemyControl.class);
+
+        AbstractEnemyControl enemyControl = new Enemy1Control();
+        for(Control control : enemy.getControls())
+            if(control instanceof AbstractEnemyControl)
+                enemyControl = (AbstractEnemyControl) control;
+        //Enemy1Control enemyControl = enemy.getControlUnsafe(Enemy1Control.class);
 
         enemyControl.takeDamage(orbital.getWidth());
     }
@@ -31,7 +35,11 @@ public class OrbitalEnemyHandler extends CollisionHandler
     {
         GameEntity orbital = (GameEntity) o;
         GameEntity enemy = (GameEntity) e;
-        EnemyControl enemyControl = enemy.getControlUnsafe(EnemyControl.class);
+
+        AbstractEnemyControl enemyControl = new Enemy1Control();
+        for(Control control : enemy.getControls())
+            if(control instanceof AbstractEnemyControl)
+                enemyControl = (AbstractEnemyControl) control;
 
         enemyControl.resetTexture();
     }
